@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/BeautifulNoise/white-noise"
+	"github.com/BeautifulNoise/simplex-noise-original"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
@@ -12,14 +12,6 @@ type color struct {
 	r, g, b byte
 }
 
-func fillWithWhiteNoise(pixels []byte) {
-	for i := 0; i < winWidth*winHeight; i++ {
-		noise := WhiteNoise.MakeNoise()
-		pixels[4*i] = noise
-		pixels[4*i+1] = noise
-		pixels[4*i+2] = noise
-	}
-}
 
 func setPixelColor(x, y int, c color, pixels []byte) {
 	index := (y*winWidth + x) * 4
@@ -63,7 +55,6 @@ func main() {
 	}
 	defer tex.Destroy()
 
-
 	for {
 		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
 			switch event.(type) {
@@ -72,15 +63,14 @@ func main() {
 			}
 		}
 		pixels := make([]byte, winWidth*winHeight*4)
-		fillWithWhiteNoise(pixels)
+		//WhiteNoise.FillPixels(pixels)
 
-		//keyState := sdl.GetKeyboardState()
-
+		simplex_noise_original.FillPixels(pixels)
 
 		tex.Update(nil, pixels, winWidth*4)
 		renderer.Copy(tex, nil, nil)
 		renderer.Present()
-		sdl.Delay(10)
+		sdl.Delay(30)
 
 	}
 }
