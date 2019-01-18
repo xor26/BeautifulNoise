@@ -1,11 +1,37 @@
-package FractalNoise
+package fractal_noise
 
 import (
 	"math"
 	"time"
 )
 
-func MakeNoise(x float64) float64 {
+func FillPixels(pixels []byte) {
+	noise := make([]float64, len(pixels)/4)
+	min := 9999.0
+	max := -99999.0
+
+	for i := 0; i < len(pixels)/4; i++ {
+		noise[i] = makeNoise(float64(i))
+		if noise[i] > max {
+			max = noise[i]
+		}
+
+		if noise[i] < min {
+			min = noise[i]
+		}
+	}
+
+	offset := math.Abs(min)
+	scale := 255 / (max + offset)
+	for i := 0; i < len(pixels)/4; i++ {
+		pixel := noise[i]*scale + offset*scale
+		pixels[4*i] = byte(pixel)
+		pixels[4*i+1] = byte(pixel)
+		pixels[4*i+2] = byte(pixel)
+	}
+}
+
+func makeNoise(x float64) float64 {
 	amplitude := .1
 	frequency := .01
 	y := math.Sin(x * frequency)
