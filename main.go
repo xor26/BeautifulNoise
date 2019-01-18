@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/BeautifulNoise/simplex-noise-original"
+	"github.com/BeautifulNoise/fractal-noise"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
@@ -11,7 +11,6 @@ const winWidth, winHeight int = 1200, 800
 type color struct {
 	r, g, b byte
 }
-
 
 func setPixelColor(x, y int, c color, pixels []byte) {
 	index := (y*winWidth + x) * 4
@@ -63,9 +62,9 @@ func main() {
 			}
 		}
 		pixels := make([]byte, winWidth*winHeight*4)
-		//WhiteNoise.FillPixels(pixels)
-
-		simplex_noise_original.FillPixels(pixels)
+		//white_noise.FillPixels(pixels)
+		//simplex_noise_original.FillPixels(pixels)
+		fractal_noise.FillPixels(pixels)
 
 		tex.Update(nil, pixels, winWidth*4)
 		renderer.Copy(tex, nil, nil)
