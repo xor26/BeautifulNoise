@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/BeautifulNoise/fractal-noise"
+	"github.com/BeautifulNoise/simplex-noise"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
@@ -63,13 +63,13 @@ func main() {
 		}
 		pixels := make([]byte, winWidth*winHeight*4)
 		//white_noise.FillPixels(pixels)
-		//simplex_noise_original.FillPixels(pixels)
-		fractal_noise.FillPixels(pixels)
+		simplex_noise.FillPixels(pixels)
+		//fractal_noise.FillPixels(pixels)
 
 		tex.Update(nil, pixels, winWidth*4)
 		renderer.Copy(tex, nil, nil)
 		renderer.Present()
-		sdl.Delay(30)
+		sdl.Delay(60)
 
 	}
 }

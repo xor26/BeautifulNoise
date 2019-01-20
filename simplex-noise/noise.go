@@ -1,4 +1,4 @@
-package simplex_noise_original
+package simplex_noise
 
 import (
 	"math/rand"
@@ -52,7 +52,7 @@ func fastFloor(x float32) int {
  * This also removes the need for any initialisation of this class.
  *
  */
-var perm2 = [256]uint8{151, 160, 137, 91, 90, 15,
+var perm = [256]uint8{151, 160, 137, 91, 90, 15,
 	131, 13, 201, 95, 96, 53, 194, 233, 7, 225, 140, 36, 103, 30, 69, 142, 8, 99, 37, 240, 21, 10, 23,
 	190, 6, 148, 247, 120, 234, 75, 0, 26, 197, 62, 94, 252, 219, 203, 117, 35, 11, 32, 57, 177, 33,
 	88, 237, 149, 56, 87, 174, 20, 125, 136, 171, 168, 68, 175, 74, 165, 71, 134, 139, 48, 27, 166,
@@ -87,17 +87,16 @@ func grad2(hash uint8, x, y float32) float32 {
 	return u + v
 }
 
-
-func generatePermutationTable() [256]uint8 {
+func regeneratePermutationTable() {
 	var table [256]uint8
-	for i:= 0; i < 256; i++ {
-		table[i] = uint8( rand.Intn(256))
+	for i := 0; i < 256; i++ {
+		table[i] = uint8(rand.Intn(256))
 	}
-	return table
+	perm = table
 }
 
 // 2D simplex noise
-func snoise2(x, y float32, perm [256]uint8) float32 {
+func snoise2(x, y float32) float32 {
 
 	const F2 float32 = 0.366025403 // F2 = 0.5*(sqrt(3.0)-1.0)
 	const G2 float32 = 0.211324865 // G2 = (3.0-Math.sqrt(3.0))/6.0
@@ -126,7 +125,7 @@ func snoise2(x, y float32, perm [256]uint8) float32 {
 	} else { // lower triangle, XY order: (0,0)->(1,0)->(1,1)
 		i1 = 0
 		j1 = 1
-	} // upper triangle, YX order: (0,0)->(0,1)->(1,1)
+	}                // upper triangle, YX order: (0,0)->(0,1)->(1,1)
 
 	// A step of (1,0) in (i,j) means a step of (1-c,-c) in (x,y), and
 	// a step of (0,1) in (i,j) means a step of (-c,1-c) in (x,y), where
@@ -170,21 +169,33 @@ func snoise2(x, y float32, perm [256]uint8) float32 {
 	return n0 + n1 + n2
 }
 
-var couner = float32(1.0)
-
-func FillPixels(pixels []byte,) {
-	couner ++
-	if couner > 100 {
-		couner = 1
+func makeNoise(x, y, frequency, lacunarity, gain float32, octaves int) float32{
+	var sum float32
+	amplitude := float32(1.0)
+	for i := 0; i < octaves; i++ {
+		sum += snoise2(x/frequency, y/frequency) * amplitude
+		amplitude *= gain
+		frequency *= lacunarity
 	}
+
+	return sum
+}
+
+func FillPixels(pixels []byte, ) {
+	regeneratePermutationTable()
 	noise := make([]float32, 1200*800)
 	min := float32(9999.0)
 	max := float32(-9999.0)
 	i := 0
-	permTable := generatePermutationTable()
+
+	frequency := float32(10.0000001)
+	lacunarity := float32(2)
+	gain := float32(4)
+	octaves := 3
+
 	for x := 0; x < 800; x++ {
 		for y := 0; y < 1200; y++ {
-			noise[i] = snoise2(float32(x)/couner, float32(y)/couner, permTable)
+			noise[i] = makeNoise(float32(x), float32(y),frequency, lacunarity, gain, octaves)
 			if min > noise[i] {
 				min = noise[i]
 			}
@@ -196,13 +207,13 @@ func FillPixels(pixels []byte,) {
 	}
 
 	scale := 255.0 / (max - min)
-	offset := min*scale
+	offset := min * scale
 
 	for i := range noise {
 		noise[i] = noise[i]*scale + offset
 		byteNoise := byte(noise[i])
 		pixels[4*i] = byteNoise
 		pixels[4*i+1] = byteNoise
-		pixels[4*i+2] =byteNoise
+		pixels[4*i+2] = byteNoise
 	}
 }
