@@ -1,8 +1,8 @@
 package main
 
 import (
+	white_noise "BeautifulNoise/white-noise"
 	"fmt"
-	"github.com/BeautifulNoise/simplex-noise"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
@@ -32,7 +32,7 @@ func main() {
 	}
 	defer sdl.Quit()
 
-	window, err := sdl.CreateWindow("Pong", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED,
+	window, err := sdl.CreateWindow("Noise", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED,
 		int32(winWidth), int32(winHeight), sdl.WINDOW_SHOWN)
 	if err != nil {
 		fmt.Println(err)
@@ -62,8 +62,8 @@ func main() {
 			}
 		}
 		pixels := make([]byte, winWidth*winHeight*4)
-		//white_noise.FillPixels(pixels)
-		simplex_noise.FillPixels(pixels)
+		white_noise.FillPixels(pixels)
+		//simplex_noise.FillPixels(pixels)
 		//fractal_noise.FillPixels(pixels)
 
 		tex.Update(nil, pixels, winWidth*4)
